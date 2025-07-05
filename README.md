@@ -29,7 +29,7 @@ Switch modes anytime. Designed for accessibility, fun, and futuristic interactio
 
 ### 1. Clone the Repo
 ```bash
-git clone https://github.com/yourusername/VirtualMouse.git
+git clone https://github.com/Suhani2305/VirtualMouse.git
 cd VirtualMouse
 ```
 
@@ -81,8 +81,8 @@ python main_combo.py
 
 - Built with [OpenCV](https://opencv.org/), [MediaPipe](https://mediapipe.dev/), [scikit-learn](https://scikit-learn.org/), [pyautogui](https://pyautogui.readthedocs.io/), [playsound](https://github.com/TaylorSMarks/playsound)
 - Free sounds from [freesound.org](https://freesound.org/)
-- Made with ❤️ for accessibility and innovation
+- Made with ❤️ for accessibility and innovation by Suhani
 
 ---
 
-**Yeh aapka apna Virtual Mouse hai! Proudly share karo, aur logo ki zindagi badlo!** 
+ 
