@@ -45,6 +45,17 @@ DOUBLE_CLICK_THRESHOLD = 0.4  # seconds
 last_index_y = None  # For scroll detection
 prev_mode = mode
 
+# Eye blink detection state
+blink_counter = 0
+blink_clicked = False
+last_blink_time = 0
+BLINK_EAR_THRESHOLD = 0.20
+BLINK_CONSEC_FRAMES = 2
+BLINK_COOLDOWN = 0.5  # seconds
+# For double blink (right click)
+last_blink_event_time = 0
+DOUBLE_BLINK_WINDOW = 0.7  # seconds
+
 # Helper to play sound in background
 def play_sound(path):
     try:
@@ -169,6 +180,44 @@ while cap.isOpened():
                 avg_y = max(0, min(avg_y, screen_h - 1))
                 pyautogui.moveTo(avg_x, avg_y, duration=0.2)
                 cv2.circle(frame, (int(eye_landmarks[0]), int(eye_landmarks[1])), 5, (0,0,255), -1)
+                # --- Blink detection (EAR) ---
+                def euclidean(p1, p2):
+                    return np.linalg.norm(np.array(p1) - np.array(p2))
+                # Use right eye for blink
+                top = [face_landmarks.landmark[386], face_landmarks.landmark[385]]
+                bottom = [face_landmarks.landmark[374], face_landmarks.landmark[380]]
+                left = face_landmarks.landmark[362]
+                right = face_landmarks.landmark[263]
+                vert = euclidean(
+                    (top[0].x * w, top[0].y * h),
+                    (bottom[0].x * w, bottom[0].y * h)
+                )
+                horz = euclidean(
+                    (left.x * w, left.y * h),
+                    (right.x * w, right.y * h)
+                )
+                ear = vert / horz if horz != 0 else 0
+                # Blink logic
+                if ear < BLINK_EAR_THRESHOLD:
+                    blink_counter += 1
+                else:
+                    now = time.time()
+                    if blink_counter >= BLINK_CONSEC_FRAMES and not blink_clicked:
+                        # Double blink detection
+                        if now - last_blink_event_time < DOUBLE_BLINK_WINDOW:
+                            pyautogui.click(button='right')
+                            play_sound('assets/right_click.wav')
+                            print('Eye mode: Double blink detected (right click)')
+                            last_blink_event_time = 0  # reset
+                        else:
+                            pyautogui.click()
+                            play_sound('assets/click.wav')
+                            print('Eye mode: Blink detected (left click)')
+                            last_blink_event_time = now
+                        last_blink_time = now
+                        blink_clicked = True
+                    blink_counter = 0
+                    blink_clicked = False
     elif mode == 'hand':
         results = hands.process(frame_rgb)
         if results.multi_hand_landmarks:
