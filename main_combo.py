@@ -56,6 +56,12 @@ BLINK_COOLDOWN = 0.5  # seconds
 last_blink_event_time = 0
 DOUBLE_BLINK_WINDOW = 0.7  # seconds
 
+# For eye mode scroll
+eye_scroll_state = None  # 'up', 'down', or None
+last_scroll_time = 0
+EYE_SCROLL_DWELL = 0.5  # seconds
+EYE_SCROLL_REGION = 0.15  # top/bottom 15% of screen
+
 # Helper to play sound in background
 def play_sound(path):
     try:
@@ -180,6 +186,26 @@ while cap.isOpened():
                 avg_y = max(0, min(avg_y, screen_h - 1))
                 pyautogui.moveTo(avg_x, avg_y, duration=0.2)
                 cv2.circle(frame, (int(eye_landmarks[0]), int(eye_landmarks[1])), 5, (0,0,255), -1)
+                # --- Eye mode scroll detection ---
+                now = time.time()
+                if avg_y < int(EYE_SCROLL_REGION * screen_h):
+                    if eye_scroll_state != 'up':
+                        eye_scroll_state = 'up'
+                        last_scroll_time = now
+                    elif now - last_scroll_time > EYE_SCROLL_DWELL:
+                        pyautogui.scroll(30)
+                        print('Eye mode: Scroll up')
+                        last_scroll_time = now
+                elif avg_y > int((1 - EYE_SCROLL_REGION) * screen_h):
+                    if eye_scroll_state != 'down':
+                        eye_scroll_state = 'down'
+                        last_scroll_time = now
+                    elif now - last_scroll_time > EYE_SCROLL_DWELL:
+                        pyautogui.scroll(-30)
+                        print('Eye mode: Scroll down')
+                        last_scroll_time = now
+                else:
+                    eye_scroll_state = None
                 # --- Blink detection (EAR) ---
                 def euclidean(p1, p2):
                     return np.linalg.norm(np.array(p1) - np.array(p2))
