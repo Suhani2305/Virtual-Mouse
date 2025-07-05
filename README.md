@@ -73,6 +73,9 @@ python main_combo.py
 ## 👁️ Eye Mode Controls
 
 - **Move:** Gaze direction (after calibration)
+- **Left Click:** Blink (right eye)
+- **Right Click:** Double blink (two blinks within 0.7 seconds)
+- **Scroll:** Hold gaze at top (scroll up) or bottom (scroll down) of screen
 - **Recalibrate:** Press `C` anytime in eye mode
 
 ---
